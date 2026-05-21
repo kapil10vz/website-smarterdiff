@@ -27,7 +27,7 @@
   <p>Questions, bug reports, feature requests, or partnership ideas — all welcome.</p>
 
   <!-- Replace the form action with your own Formspree (or equivalent) endpoint -->
-  <form class="contact-form" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+  <form id="contact-form" class="contact-form" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
     <label>
       Your email
       <input type="email" name="email" required />
@@ -43,9 +43,9 @@
     <button class="btn primary" type="submit" style="justify-self:start;">Send message</button>
   </form>
 
-  <p style="margin-top:32px;color:var(--muted);font-size:13px;">
-    Or email us at <code>hello@smarterdiff.com</code>.
-  </p>
+  <div id="contact-status" aria-live="polite" style="margin-top:12px;font-size:14px;color:var(--muted);"></div>
+
+  
 </main>
 <footer class="footer">
   <nav class="footer-nav">
@@ -53,5 +53,46 @@
   </nav>
   <small>© 2026 SmarterDiff</small>
 </footer>
+<script>
+  (function(){
+    var form = document.getElementById('contact-form');
+    if (!form) return;
+    var status = document.getElementById('contact-status');
+
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      status.style.color = '';
+      status.textContent = 'Sending…';
+
+      var action = form.getAttribute('action');
+      if (!action || action.indexOf('YOUR_FORM_ID') !== -1) {
+        status.style.color = 'crimson';
+        status.textContent = 'Please set your Formspree form ID in the form action.';
+        return;
+      }
+
+      var data = new FormData(form);
+
+      fetch(action, {
+        method: 'POST',
+        body: data,
+        headers: {
+          'Accept': 'application/json'
+        }
+      }).then(function(response){
+        if (response.ok) return response.json().catch(function(){return {ok:true}});
+        return response.json().then(function(err){throw err}).catch(function(){throw new Error('Request failed')});
+      }).then(function(){
+        form.reset();
+        status.style.color = 'green';
+        status.textContent = 'Message sent — thanks!';
+      }).catch(function(err){
+        status.style.color = 'crimson';
+        status.textContent = 'Sorry — sending failed. Please email hello@smarterdiff.com';
+        console.error('Contact form error:', err);
+      });
+    });
+  })();
+</script>
 </body>
 </html>
