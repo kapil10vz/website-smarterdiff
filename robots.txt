@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: http://smarterdiff.com/sitemap.xml
+Sitemap: https://smarterdiff.com/sitemap.xml
