@@ -6,7 +6,7 @@
 <title>About — SmarterDiff</title>
 <meta name="description" content="About SmarterDiff: who built it, why, and how it stays privacy-first." />
 <link rel="stylesheet" href="styles.css" />
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8966173018783583" crossorigin="anonymous"></script>
 </head>
 <body>
 <header class="topbar">
@@ -22,13 +22,68 @@
     Most diff tools upload your content for processing. We don't.
   </p>
 
+  <h2>Why we built SmarterDiff</h2>
+  <p>
+    Comparing documents is a core part of many workflows — contract review, financial
+    audits, code reviews, and media verification all depend on spotting changes.
+    But traditional diff tools have a fundamental problem: they require you to upload
+    your files to a server. For sensitive documents (NDAs, medical records, financial
+    models, proprietary code), that's often not an option.
+  </p>
+  <p>
+    We created SmarterDiff to solve this by running everything in your browser.
+    No uploads. No servers. No accounts. Just a fast, private comparison tool that
+    works offline after the first load.
+  </p>
+
   <h2>Our principles</h2>
   <ol>
-    <li><strong>Your data stays on your device.</strong> Tool processing is 100% client-side.</li>
-    <li><strong>No account, ever.</strong> You should never need to sign up to compare two files.</li>
-    <li><strong>Free for personal and commercial use.</strong> Ads pay our hosting bill so you don't have to.</li>
-    <li><strong>Open about how things work.</strong> Every detection heuristic is documented on the tool page.</li>
+    <li><strong>Your data stays on your device.</strong> Tool processing is 100% client-side. Every comparison runs in your browser's memory and is never transmitted.</li>
+    <li><strong>No account, ever.</strong> You should never need to sign up, log in, or create an identity to compare two files.</li>
+    <li><strong>Free for personal and commercial use.</strong> Ads pay our hosting bill so you don't have to pay for the service.</li>
+    <li><strong>Open about how things work.</strong> Every detection heuristic is documented. You can inspect the network tab in DevTools and verify no data leaves your computer.</li>
+    <li><strong>Built on open-source.</strong> We use only well-maintained, audited JavaScript libraries — no proprietary code.</li>
   </ol>
+
+  <h2>Use cases</h2>
+  <p>
+    <strong>Lawyers and legal professionals</strong> use SmarterDiff to compare contract
+    revisions before signing. The ability to compare confidential agreements without
+    uploading them makes this tool essential for firms handling NDAs, employment agreements,
+    and settlement drafts.
+  </p>
+  <p>
+    <strong>Financial analysts and auditors</strong> rely on the Excel comparison feature
+    to track changes in quarterly forecasts, budget revisions, and transaction logs.
+    Because everything stays on your device, you can safely compare sensitive financial
+    models without compliance concerns.
+  </p>
+  <p>
+    <strong>Journalists and fact-checkers</strong> use the AI vs Real image detection
+    to verify whether photographs are AI-generated or camera-captured. Useful for
+    spotting synthetic images in news stories and social media.
+  </p>
+  <p>
+    <strong>Software developers</strong> use SmarterDiff for quick diffs of source code,
+    configuration files, and documentation. No need to fire up a full IDE — just drop
+    two files and compare.
+  </p>
+
+  <h2>How it works</h2>
+  <p>
+    SmarterDiff uses WebAssembly-compatible JavaScript libraries to handle each file format.
+    For text, we use jsdiff to compute line, word, and character-level diffs.
+    For Word documents, mammoth.js extracts the text layer. For Excel, SheetJS parses
+    the workbook and we walk cell-by-cell. For PDFs, pdf.js extracts text, and we diff
+    it line-by-line. For images, the Canvas API lets us read pixel data and compute
+    color deltas. All of this runs in your browser tab — no backend required.
+  </p>
+  <p>
+    The AI image detector combines four local signals that statistically differ between
+    AI-generated and camera-captured images: EXIF metadata richness, JPEG compression
+    fingerprints, FFT spectral analysis, and per-channel noise correlation. It's a heuristic,
+    not a verdict — treat the score as one input among many.
+  </p>
 
   <h2>Built with</h2>
   <p>
@@ -38,6 +93,20 @@
     <a href="https://github.com/SheetJS/sheetjs">SheetJS</a> for Excel,
     <a href="https://mozilla.github.io/pdf.js/">pdf.js</a> for PDFs, and
     <a href="https://github.com/MikeKovarik/exifr">exifr</a> for image metadata.
+    Each library is battle-tested in production systems worldwide.
+  </p>
+
+  <h2>No tracking, no uploads, no backdoors</h2>
+  <p>
+    You can verify SmarterDiff's privacy guarantees yourself. Open DevTools (F12 or Cmd+Option+I),
+    go to the Network tab, and run a comparison. You'll see no requests to external servers
+    for your file data. The HTML page loads libraries from CDN on first visit, and then
+    makes zero further requests. Everything else happens in your browser's JavaScript engine.
+  </p>
+  <p>
+    We do use Google Analytics to understand which features are popular (page views, browser type),
+    but Google Analytics never sees your files or comparison output. Similarly, Google AdSense
+    shows ads on this page, but has no visibility into what you're comparing.
   </p>
 </main>
 <footer class="footer">
