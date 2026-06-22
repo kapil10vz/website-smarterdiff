@@ -357,4 +357,64 @@ table.diff td.removed { background: var(--del); color: var(--del-fg); }
   .split { grid-template-columns: 1fr; }
   .hero h1 { font-size: 26px; }
   .nav a { display: none; }
+  /* Hide third ad slot on mobile to improve content-to-ads ratio */
+  .ad-prefooter { display: none; }
+}
+
+/* Team member grid styling */
+.team-members {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.team-member {
+  padding: 1.25rem;
+  background: var(--panel-2);
+  border-radius: 8px;
+  border-left: 4px solid var(--accent);
+}
+
+.team-member h4 {
+  margin: 0 0 0.5rem 0;
+  color: var(--accent);
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.team-member p {
+  margin: 0.5rem 0;
+  line-height: 1.6;
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+/* Table styling for benchmarks */
+table {
+  font-size: 0.95rem;
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+}
+
+table thead {
+  background: var(--panel-2);
+  border-bottom: 2px solid var(--border);
+}
+
+table th {
+  padding: 0.75rem;
+  text-align: left;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+table tr:last-child td {
+  border-bottom: none;
 }
