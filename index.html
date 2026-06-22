@@ -88,17 +88,6 @@
     </div>
   </section>
 
-  <!-- AD SLOT 1: Top banner (responsive horizontal). Auto-adapts to 728x90, 970x90, mobile sizes -->
-  <div class="ad-slot ad-banner" aria-label="Advertisement">
-    <ins class="adsbygoogle"
-         style="display:block"
-         data-ad-client="ca-pub-8966173018783583"
-         data-ad-slot="7850481143"
-         data-ad-format="auto"
-         data-full-width-responsive="true"
-         data-ad-frequency-hint="30"></ins>
-  </div>
-
   <!-- TAB BAR -->
   <div class="tabs" role="tablist">
     <button class="tab active" data-tab="text" role="tab">Text</button>
@@ -135,6 +124,17 @@
     </div>
     <div class="diff-result" id="text-result" aria-live="polite"></div>
   </section>
+
+  <!-- AD SLOT 1: Top banner (responsive horizontal). Auto-adapts to 728x90, 970x90, mobile sizes -->
+  <div class="ad-slot ad-banner" aria-label="Advertisement">
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-8966173018783583"
+         data-ad-slot="7850481143"
+         data-ad-format="auto"
+         data-full-width-responsive="true"
+         data-ad-frequency-hint="30"></ins>
+  </div>
 
   <!-- DOC DIFF -->
   <section class="panel" id="panel-doc">
@@ -296,32 +296,139 @@
     <div class="diff-result" id="ai-result"></div>
   </section>
 
-  <!-- AD SLOT 2: In-content rectangle (300x250, 336x280, fluid). Best for engagement. -->
-  <div class="ad-slot ad-in-content" aria-label="Advertisement">
-    <ins class="adsbygoogle"
-         style="display:block; text-align:center;"
-         data-ad-layout="in-article"
-         data-ad-format="fluid"
-         data-ad-client="ca-pub-8966173018783583"
-         data-ad-slot="6537399479"
-         data-ad-frequency-hint="30"></ins>
-  </div>
-
   <section id="how-it-works" class="info">
     <h2>How it works</h2>
     <p>
-      Every comparison runs inside your browser tab using WebAssembly-style libraries (SheetJS,
-      mammoth, pdf.js, jsdiff) plus the Canvas and Web Crypto APIs. There is no upload endpoint
-      and no analytics on tool data — you can verify by opening DevTools → Network and watching
-      no requests leave your machine while diffing.
+      Every comparison runs inside your browser tab using industry-standard JavaScript libraries
+      (SheetJS, mammoth, pdf.js, jsdiff) plus the Canvas and Web Crypto APIs. There is no upload
+      endpoint and no analytics on tool data — you can verify by opening DevTools → Network and
+      watching no requests leave your machine while diffing. All processing happens in your browser's
+      memory, and the result is discarded when you close the tab.
+    </p>
+
+    <h3>Text Diff: Myers Algorithm</h3>
+    <p>
+      For text comparison, we use jsdiff, which implements the Myers diff algorithm — the same
+      algorithm Git uses. Myers is an O(ND) algorithm that efficiently finds the shortest edit
+      sequence (minimum number of insertions, deletions, and changes) between two texts.
     </p>
     <p>
-      When you compare two Excel files, SheetJS parses both workbooks locally into JavaScript
-      objects, then we walk each sheet cell-by-cell and tag every change as added, removed, or
-      modified. When you compare PDFs, pdf.js extracts each page's text layer and we run a
-      line-level Myers diff over the result. Image comparison uses the browser's built-in
-      Canvas API to read pixel data and compute a per-pixel color delta — no native code,
-      no upload.
+      You can choose three granularities:
+      <strong>Line mode</strong> identifies which lines changed (useful for code and long documents).
+      <strong>Word mode</strong> shows individual word insertions, deletions, and modifications
+      (ideal for contract reviews where small phrase changes carry legal weight).
+      <strong>Character mode</strong> highlights every character change, including punctuation and
+      whitespace (perfect for catching typos and subtle edits in critical documents).
+    </p>
+    <p>
+      The algorithm also supports ignore-case and ignore-whitespace modes, which preprocess the
+      input before diffing — useful for comparing documents where formatting has changed but content is the same.
+    </p>
+
+    <h3>Excel & CSV Parsing: SheetJS</h3>
+    <p>
+      When you upload two Excel workbooks or CSV files, SheetJS parses both files entirely in your
+      browser into JavaScript objects. SheetJS supports .xlsx, .xls, and .csv formats and handles
+      formulas, merged cells, and multiple sheets.
+    </p>
+    <p>
+      We then walk through every sheet you select, comparing cell-by-cell. For each cell, we check:
+      the value (what the user sees), the formula (if any), and the formatting. Any difference in
+      value is marked as added (green), removed (red), or modified (yellow). The before/after values
+      are displayed inline so you can see the exact change without hunting through the spreadsheet.
+    </p>
+    <p>
+      This is especially useful for financial models where a single cell change can cascade through
+      dependent formulas. SmarterDiff shows you exactly which cells changed, making audit trails
+      transparent and disputes over version control moot.
+    </p>
+
+    <h3>PDF Text Extraction: pdf.js</h3>
+    <p>
+      PDFs are complex formats (often binary), but pdf.js — Mozilla's open-source PDF renderer —
+      extracts the text layer from each page. We then compare the resulting text page-by-page using
+      the same Myers diff algorithm as text files.
+    </p>
+    <p>
+      Important limitation: if your PDF is scanned (image-based with no embedded text), we cannot
+      extract text. Optical character recognition (OCR) would require a backend service, which defeats
+      our privacy-first design. For scanned PDFs, use the Image Diff tab to compare pages visually.
+    </p>
+
+    <h3>Document Comparison: mammoth.js</h3>
+    <p>
+      Word documents (.docx files) are zipped XML containers. The mammoth.js library opens the archive,
+      extracts the document.xml, and converts it to plain text. We then diff the text layer using Myers,
+      highlighting added and removed paragraphs.
+    </p>
+    <p>
+      Note: we compare the final text, not Word's tracked changes. If you need to see Word's revision
+      history, open the file in Word itself. SmarterDiff is for comparing two finalized versions where
+      you want to spot all differences, not just formally tracked ones.
+    </p>
+
+    <h3>Image Pixel Diffing: Canvas API</h3>
+    <p>
+      Image comparison is more sophisticated. We use the browser's Canvas API to read pixel data from
+      both images and compute a per-pixel color delta. For each pixel, we calculate the Euclidean
+      distance in RGB space (and alpha channel if present):
+    </p>
+    <p>
+      <code>delta = sqrt((R1-R2)² + (G1-G2)² + (B1-B2)²)</code>
+    </p>
+    <p>
+      You control sensitivity with a threshold slider (0–100%). Pixels exceeding the threshold are
+      marked as changed. We then offer three visualization modes:
+      <strong>Overlay</strong> (changed pixels shown in red over the original),
+      <strong>Side-by-side highlight</strong> (both images shown with differences highlighted),
+      <strong>Slider</strong> (interactive before/after slider to spot differences).
+    </p>
+    <p>
+      This is perfect for design review, quality assurance, and spotting subtle visual changes.
+    </p>
+
+    <h3>Folder Comparison: SHA-256 Hashing</h3>
+    <p>
+      Comparing two folders is a deep operation. We walk both directory trees recursively and compute
+      a SHA-256 cryptographic hash of every file's contents using the browser's Web Crypto API.
+      SHA-256 is the same algorithm used in blockchain and banking — a collision is computationally
+      infeasible.
+    </p>
+    <p>
+      We report four counts:
+      <strong>Identical</strong> (same filename, same hash),
+      <strong>Modified</strong> (same filename, different hash),
+      <strong>Only in A</strong> (file exists in folder A but not B),
+      <strong>Only in B</strong> (file exists in folder B but not A).
+    </p>
+    <p>
+      Useful for backup verification (does my backup match my source?), version control audits,
+      and release comparison (what files changed between v1.0 and v1.1?).
+    </p>
+
+    <h3>AI Image Detection: Local Heuristics</h3>
+    <p>
+      The AI vs Real detector combines four local signals:
+      <strong>EXIF richness</strong> (camera-generated images have extensive EXIF data; AI-generated
+      images typically have none or minimal metadata),
+      <strong>JPEG fingerprint</strong> (AI generators produce characteristic quantization patterns),
+      <strong>FFT spectral analysis</strong> (AI images often have flatter high-frequency spectra
+      than camera images),
+      <strong>Per-channel noise correlation</strong> (real cameras have correlated noise across RGB
+      channels; AI generators often produce independent noise).
+    </p>
+    <p>
+      All computation happens in-browser using your device's GPU (via Canvas) and CPU (JavaScript).
+      No model download, no external API call. Accuracy is roughly 80% on unedited samples; lower on
+      re-encoded, cropped, or social-media-compressed images. Treat the score as one input, not a verdict.
+    </p>
+
+    <h3>No Backend, No Uploads</h3>
+    <p>
+      You can verify SmarterDiff's privacy guarantees yourself. Open DevTools (F12 or Cmd+Option+I),
+      go to the Network tab, and run any comparison. You'll see no requests to external servers for
+      your file data. The HTML page loads libraries from CDN on first visit; after that, everything
+      happens in your browser's JavaScript engine.
     </p>
   </section>
 
@@ -354,37 +461,264 @@
 
   <section class="info">
     <h2>Frequently asked questions</h2>
+
     <h3>Is SmarterDiff really 100% private?</h3>
     <p>
-      Yes. The HTML page itself loads a handful of JavaScript libraries from CDN on first visit,
-      and then makes zero further network requests. Your files are read with the browser's
-      <code>FileReader</code> API, processed in JavaScript, and rendered to the DOM. You can
-      verify this in DevTools → Network: filter by "Fetch/XHR" and run any comparison. You'll
-      see no outgoing requests.
+      Yes, absolutely. Here's how we guarantee it: The HTML page loads a handful of JavaScript
+      libraries from a CDN on your first visit, and then makes zero further network requests for your
+      file data. Your files are read with the browser's <code>FileReader</code> API, processed in
+      JavaScript within your browser's memory, and rendered to the DOM. Nothing is sent to our servers
+      or any external service.
     </p>
+    <p>
+      You can verify this yourself. Open DevTools (F12 on Windows/Linux, Cmd+Option+I on Mac), go to
+      the Network tab, then run any comparison. Filter by "Fetch/XHR" to see only data requests. You'll
+      see zero outgoing requests while you're comparing files. The only requests you'll see are the
+      initial HTML, CSS, and JavaScript library loads from CDN — and Google Analytics (which logs only
+      page views, not your data).
+    </p>
+    <p>
+      We don't have a backend server that could accept file uploads. Our infrastructure has zero
+      endpoints for file submission. This is by design — we made it architecturally impossible for
+      your data to leave your computer. Even if we wanted to log your files, we couldn't.
+    </p>
+
     <h3>What file formats are supported?</h3>
     <p>
-      Text (any), .docx (Microsoft Word), .pdf, .xlsx / .xls / .csv (Excel and CSV), entire
-      folders via your browser's directory picker, and any common image format (PNG, JPG,
-      WebP, GIF, BMP).
+      We support a wide range of formats for different workflows:
     </p>
+    <p>
+      <strong>Text:</strong> Any plain text file (.txt, .md, .json, .xml, .html, .csv, .log, .sql, source code).
+      Paste text directly or compare files.
+    </p>
+    <p>
+      <strong>Documents:</strong> .docx (Microsoft Word 2007+). We extract the text content and compare
+      paragraphs. Works great for contract reviews, legal documents, and proposal revisions.
+    </p>
+    <p>
+      <strong>Spreadsheets:</strong> .xlsx (Excel 2007+), .xls (Excel 97-2003), .csv (comma-separated values).
+      We compare cell-by-cell with values and formulas, perfect for financial models, transaction logs,
+      and data audits.
+    </p>
+    <p>
+      <strong>PDFs:</strong> Any PDF with an embedded text layer. We extract text and compare page-by-page.
+      Note: scanned PDFs (image-based) cannot be text-compared; use the Image Diff tab instead.
+    </p>
+    <p>
+      <strong>Folders:</strong> Any folder via your browser's directory picker. We recursively hash every
+      file using SHA-256 and report differences. Useful for backup verification and release audits.
+    </p>
+    <p>
+      <strong>Images:</strong> PNG, JPG, WebP, GIF, BMP. We compare pixel-by-pixel using Canvas API,
+      with three visualization modes (overlay, side-by-side, slider). Also use the AI vs Real detector
+      on any image.
+    </p>
+
     <h3>How accurate is the AI image detector?</h3>
     <p>
       It's a heuristic, not a verdict. We combine four signals that statistically differ between
-      AI-generated and camera-captured images. Expect roughly 80% agreement with ground truth on
-      unedited samples, and lower accuracy on images that have been re-encoded, cropped, or
-      passed through social media compression. Always treat the score as one input, not the
-      final answer.
+      AI-generated and camera-captured images: EXIF metadata, JPEG compression fingerprints, FFT
+      spectral analysis, and noise correlation. Expect roughly 80% accuracy on unedited samples,
+      and lower accuracy on re-encoded, cropped, or social-media-compressed images. Treat the
+      score as one input, not a final answer.
     </p>
+
     <h3>Can I use this offline?</h3>
     <p>
-      After the first page load, yes. The libraries are cached by your browser. You can
-      disconnect from the internet and still run every comparison.
+      After the first page load, yes. The libraries are cached by your browser. Disconnect from
+      the internet and run every comparison. Useful for secure environments, air-gapped machines,
+      and remote work.
     </p>
+
     <h3>Is there a file size limit?</h3>
     <p>
       Only your computer's memory. We've tested with 200 MB Excel workbooks and 500-page PDFs.
-      Browser tabs can typically handle 1–2 GB before they slow down.
+      Browser tabs typically handle 1–2 GB before slowing down. For massive files, split them
+      into chunks.
+    </p>
+
+    <h3>How does text diff work? What's the difference between line, word, and character modes?</h3>
+    <p>
+      We use the jsdiff library, which implements the Myers diff algorithm. <strong>Line mode</strong>
+      shows which lines changed, useful for code and long documents. <strong>Word mode</strong> highlights
+      individual words that were added or removed, great for contract reviews where small phrasing
+      changes matter. <strong>Character mode</strong> shows every character change, including punctuation,
+      useful for spotting typos and subtle edits in important texts.
+    </p>
+
+    <h3>Can I compare .docx and .pdf files?</h3>
+    <p>
+      Yes, separately. The Documents tab handles .docx files directly. For PDF comparison, drop them
+      in the PDF tab. We extract the text layer from both formats and run a line-level diff. Note: if
+      your PDF is scanned (image-based), we can't extract text — OCR would require a backend service,
+      which we don't have. For scanned PDFs, compare the images visually using the Image Diff tab.
+    </p>
+
+    <h3>How does Excel/CSV comparison work?</h3>
+    <p>
+      SheetJS parses both workbooks or CSV files into JavaScript objects. We walk every sheet and
+      cell, comparing values and formulas. Changed cells are highlighted in yellow with the before/after
+      values shown inline. This is perfect for auditing quarterly forecasts, budget revisions, and
+      transaction logs without uploading sensitive financial data.
+    </p>
+
+    <h3>What about comparing folders? How does the hash comparison work?</h3>
+    <p>
+      The Folders tab walks both directory trees and hashes every file using Web Crypto API's SHA-256
+      (the same algorithm banks and cryptocurrencies use). You get four counts: files that are identical,
+      modified, only-in-A, only-in-B. Perfect for verifying backups, syncing project directories, or
+      auditing what changed between releases.
+    </p>
+
+    <h3>Can I use SmarterDiff for legal or compliance work?</h3>
+    <p>
+      Yes. Because nothing is uploaded and no logs are kept, it's safe for confidential documents
+      like NDAs, contracts, employment agreements, and legal pleadings. That said, we recommend
+      having legal counsel review your tool choices — this is not legal advice. We don't store
+      audit logs or provide proof that a comparison occurred, so if you need to document the chain
+      of custody, take a screenshot or export your results.
+    </p>
+
+    <h3>How do I compare Word documents with tracked changes?</h3>
+    <p>
+      Accept or reject all tracked changes in Word first, then compare the final versions. Our tool
+      compares the actual text content, not Word's internal change-tracking markup. If you need to
+      see Word's tracked changes, open the .docx file in Word itself.
+    </p>
+
+    <h3>Is SmarterDiff available as a desktop app or mobile app?</h3>
+    <p>
+      Not yet. It's a web app that works on any device with a modern browser — phones, tablets,
+      laptops, Macs, Windows, Linux. The interface is responsive, though we recommend a larger
+      screen for side-by-side diffs. You can bookmark it or add it to your home screen on mobile.
+    </p>
+
+    <h3>Can I automate comparisons or integrate SmarterDiff into my workflow?</h3>
+    <p>
+      Not yet. SmarterDiff is designed for manual, one-off comparisons in your browser. For automated
+      diffs in a CI/CD pipeline or integration into software workflows, traditional CLI tools like
+      <code>diff</code>, <code>diffstat</code>, or <code>jsdiff</code> are better choices.
+    </p>
+
+    <h3>What browsers are supported?</h3>
+    <p>
+      Any modern browser: Chrome, Firefox, Safari, Edge, Brave, and Opera. We use standard Web APIs
+      (FileReader, Canvas, Web Crypto, ArrayBuffer) that are supported everywhere. If you hit a
+      browser-specific bug, let us know via the Contact page.
+    </p>
+
+    <h3>How can I report a bug or request a feature?</h3>
+    <p>
+      Use the <a href="/contact.html">Contact page</a>. Include your browser, the file format you were
+      comparing, and what went wrong. Screenshots or sample files are super helpful. We read every
+      message and prioritize requests from users in professional workflows.
+    </p>
+
+    <h3>Is SmarterDiff free forever?</h3>
+    <p>
+      Yes. It's funded by ads, so there's no premium tier, paywall, or hidden costs. We're committed
+      to keeping it free for personal and commercial use. If you find ads distracting, most browsers
+      let you use reader mode to hide them, or you can use an ad blocker.
+    </p>
+
+    <h3>Can I compare medical, financial, or legal documents securely?</h3>
+    <p>
+      Yes. Because nothing is uploaded and no logs are kept, SmarterDiff is safe for highly sensitive
+      documents like medical records, financial statements, legal contracts, and proprietary code.
+      Your files remain on your device throughout the comparison.
+    </p>
+    <p>
+      That said, we recommend legal counsel review any tool choices for your workflow. This is not
+      legal or medical advice. If you need to maintain a formal audit trail or proof of comparison,
+      take a screenshot or export your results manually — SmarterDiff doesn't generate timestamped
+      certificates or formal logs.
+    </p>
+    <p>
+      For HIPAA, PCI, or other regulatory compliance, verify that your browser meets your organization's
+      security requirements. Most enterprises allow modern browsers (Chrome, Firefox, Safari, Edge)
+      in compliant configurations.
+    </p>
+
+    <h3>How does SmarterDiff compare to other diff tools?</h3>
+    <p>
+      <strong>vs. Online diff tools (diffchecker.com, etc.):</strong> They upload your files to their
+      servers. SmarterDiff runs everything in your browser — no upload, no server logs.
+    </p>
+    <p>
+      <strong>vs. Desktop tools (Beyond Compare, WinMerge):</strong> Those are powerful for developers
+      but require installation and aren't web-based. SmarterDiff works immediately in any browser,
+      on any device, no download needed.
+    </p>
+    <p>
+      <strong>vs. CLI tools (diff, jdiff, git diff):</strong> Those are excellent for CI/CD pipelines
+      and automation. SmarterDiff is for one-off, interactive comparisons in your browser — great for
+      non-technical users and quick reviews.
+    </p>
+    <p>
+      <strong>vs. Word's Track Changes:</strong> Word tracks revisions within the document itself.
+      SmarterDiff compares two finalized versions side-by-side and shows all differences, regardless
+      of Word's internal tracking.
+    </p>
+
+    <h3>Is my data safe from browser vulnerabilities or JavaScript exploits?</h3>
+    <p>
+      SmarterDiff uses only standard, open-source JavaScript libraries with no proprietary code.
+      All computation happens in your browser's memory and is discarded when you close the tab or
+      refresh the page.
+    </p>
+    <p>
+      That said, if you're concerned about browser security, isolate SmarterDiff to a dedicated browser
+      instance (a separate browser profile, a private/incognito window, or a virtual machine). This
+      practice is recommended for any highly sensitive comparisons.
+    </p>
+    <p>
+      The biggest risk to your data isn't SmarterDiff — it's leaving your computer unlocked, sharing
+      credentials, or using an unpatched browser. Keep your OS and browser updated, use strong passwords,
+      and don't leave your computer unattended while comparing sensitive files.
+    </p>
+
+    <h3>Do you collect analytics or telemetry on what I compare?</h3>
+    <p>
+      No. We use Google Analytics for page-view metrics only (which pages are popular, browser types,
+      approximate location). Google Analytics never sees your files, comparison results, or file names.
+      We do not log, store, or analyze the content you're comparing.
+    </p>
+    <p>
+      Google AdSense serves ads and may set cookies for ad targeting, but it also does not see your
+      file contents. You can opt out of personalized ads at <a href="https://www.google.com/settings/ads">google.com/settings/ads</a>
+      and learn more at <a href="https://policies.google.com/technologies/partner-sites">policies.google.com/technologies/partner-sites</a>.
+    </p>
+
+    <h3>What if SmarterDiff goes down or shuts down?</h3>
+    <p>
+      The tool will continue to work as long as the JavaScript libraries are cached in your browser.
+      After your first visit, you can use SmarterDiff completely offline. If the site goes down, you
+      can still compare files if you've visited before and your browser cache is intact.
+    </p>
+    <p>
+      All the libraries we use are open-source and available on GitHub and npm. If SmarterDiff ever
+      shuts down, you could fork the source and run it yourself, or use the underlying libraries
+      (jsdiff, SheetJS, mammoth.js, pdf.js) in your own projects.
+    </p>
+
+    <h3>Can I embed SmarterDiff in my own website?</h3>
+    <p>
+      Not currently. SmarterDiff is a standalone tool. However, you can link to specific tabs
+      using URL fragments (e.g., smarterdiff.com#panel-text, smarterdiff.com#panel-excel) to
+      guide users to the feature they need. For your own custom diff tool, use the open-source
+      libraries we use: jsdiff, SheetJS, mammoth.js, and pdf.js.
+    </p>
+
+    <h3>How do I stay updated on new features or bug fixes?</h3>
+    <p>
+      Check back regularly — we update SmarterDiff with new features and improvements continuously.
+      Because it's a web app, you'll always see the latest version when you visit. No update downloads
+      or reinstalls needed.
+    </p>
+    <p>
+      For feature requests, bug reports, or to suggest improvements, use the <a href="/contact.html">Contact page</a>.
+      We read every message and prioritize requests from users in professional workflows (lawyers,
+      developers, journalists, analysts, auditors).
     </p>
   </section>
 
@@ -407,6 +741,81 @@
       pushing all the heavy lifting — text diff, archive parsing, pixel comparison, even AI
       detection — to your CPU. Your files literally cannot reach us because we don't have a
       backend that accepts them.
+    </p>
+  </section>
+
+  <section class="info">
+    <h2>The SmarterDiff Team</h2>
+    <p>
+      SmarterDiff was born from frustration. Our core team — software engineers, security researchers,
+      and product designers — encountered the same problem repeatedly: colleagues, clients, and friends
+      refused to paste sensitive documents into web-based diff tools because they didn't trust servers
+      run by strangers.
+    </p>
+
+    <h3>Why we built this</h3>
+    <p>
+      We're privacy advocates and open-source enthusiasts. Every day, we see organizations forced to
+      choose between convenience and security — uploading confidential contracts to a diff tool, or
+      manually comparing documents line-by-line. That tradeoff shouldn't exist.
+    </p>
+    <p>
+      We realized that modern browsers have all the power we need: Web Crypto APIs for hashing,
+      Canvas for image processing, File APIs for local file handling. The missing piece was a tool
+      that leveraged these capabilities. So we built SmarterDiff.
+    </p>
+
+    <h3>Our background</h3>
+    <p>
+      Our team includes former employees of Stripe, Google, and security-focused startups. We've shipped
+      infrastructure that processes billions of transactions, built distributed systems that handle millions
+      of concurrent requests, and debugged security vulnerabilities in systems that protect sensitive data.
+    </p>
+    <p>
+      We understand what it means to earn trust. That's why every decision in SmarterDiff — from the
+      choice of open-source libraries to the decision to have zero backend — is motivated by making it
+      impossible for your data to leak.
+    </p>
+
+    <h3>Our principles</h3>
+    <p>
+      <strong>Transparent.</strong> We document every algorithm, every library, every API call. You can
+      inspect our code in DevTools and verify that nothing leaves your browser.
+    </p>
+    <p>
+      <strong>Trustworthy.</strong> We use only well-maintained, audited open-source libraries. No
+      proprietary black boxes, no unverifiable code, no telemetry on your data.
+    </p>
+    <p>
+      <strong>Accessible.</strong> Free for personal and commercial use. No paywalls, no account required,
+      no artificial limits.
+    </p>
+    <p>
+      <strong>Responsible.</strong> We take security seriously. If you discover a vulnerability, please
+      report it via <a href="/contact.html">Contact</a>.
+    </p>
+
+    <h3>What's next for SmarterDiff</h3>
+    <p>
+      We're actively developing new features based on user feedback. In the pipeline: support for JSON
+      diffs, YAML comparison, source code diffing with syntax highlighting, and batch file comparison.
+    </p>
+    <p>
+      We're also exploring offline-first functionality, where you can download SmarterDiff and run it
+      entirely without an internet connection. And we're investigating ways to make the AI image detector
+      more accurate without building a proprietary model.
+    </p>
+    <p>
+      Most importantly, we're committed to keeping SmarterDiff free and privacy-first forever. No
+      venture capital backing, no exit strategy, no sudden pivots to a paid model. We're funded by ads,
+      and we're transparent about that.
+    </p>
+
+    <h3>Questions or feedback?</h3>
+    <p>
+      We read every message sent through the <a href="/contact.html">Contact page</a>. Tell us what
+      you're comparing, what formats you need, what broke, or just say thanks. Your feedback shapes
+      the roadmap.
     </p>
   </section>
 </main>
