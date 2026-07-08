@@ -68,6 +68,7 @@
   </div>
   <nav class="nav">
     <a href="#how-it-works">How it works</a>
+    <a href="#guides">Guides</a>
     <a href="#privacy">Privacy</a>
     <a href="https://github.com/" target="_blank" rel="noopener">Source</a>
   </nav>
@@ -419,8 +420,8 @@
     </p>
     <p>
       All computation happens in-browser using your device's GPU (via Canvas) and CPU (JavaScript).
-      No model download, no external API call. Accuracy is roughly 80% on unedited samples; lower on
-      re-encoded, cropped, or social-media-compressed images. Treat the score as one input, not a verdict.
+      No model download and no external API call is required. Accuracy varies by image source,
+      edits, and compression level, so treat the score as one input and not a final verdict.
     </p>
 
     <h3>No Backend, No Uploads</h3>
@@ -518,9 +519,9 @@
     <p>
       It's a heuristic, not a verdict. We combine four signals that statistically differ between
       AI-generated and camera-captured images: EXIF metadata, JPEG compression fingerprints, FFT
-      spectral analysis, and noise correlation. Expect roughly 80% accuracy on unedited samples,
-      and lower accuracy on re-encoded, cropped, or social-media-compressed images. Treat the
-      score as one input, not a final answer.
+      spectral analysis, and noise correlation. Accuracy varies by image source and edit history,
+      especially after re-encoding, cropping, or social-media compression. Treat the score as one
+      input, not a final answer.
     </p>
 
     <h3>Can I use this offline?</h3>
@@ -532,9 +533,8 @@
 
     <h3>Is there a file size limit?</h3>
     <p>
-      Only your computer's memory. We've tested with 200 MB Excel workbooks and 500-page PDFs.
-      Browser tabs typically handle 1–2 GB before slowing down. For massive files, split them
-      into chunks.
+      Only your computer's memory. Browser behavior depends on your device and browser limits.
+      For very large files, compare smaller sections in sequence for better stability.
     </p>
 
     <h3>How does text diff work? What's the difference between line, word, and character modes?</h3>
@@ -610,8 +610,7 @@
     <h3>How can I report a bug or request a feature?</h3>
     <p>
       Use the <a href="/contact.html">Contact page</a>. Include your browser, the file format you were
-      comparing, and what went wrong. Screenshots or sample files are super helpful. We read every
-      message and prioritize requests from users in professional workflows.
+      comparing, and what went wrong. Screenshots or sample files are super helpful.
     </p>
 
     <h3>Is SmarterDiff free forever?</h3>
@@ -717,104 +716,27 @@
     </p>
     <p>
       For feature requests, bug reports, or to suggest improvements, use the <a href="/contact.html">Contact page</a>.
-      We read every message and prioritize requests from users in professional workflows (lawyers,
-      developers, journalists, analysts, auditors).
+      We review messages regularly and use them to shape future updates.
     </p>
   </section>
 
-  <section class="info">
-    <h2>Performance Benchmarks & Original Research</h2>
-
-    <h3>Speed Comparison: Local vs Cloud-Based Diffs</h3>
+  <section id="guides" class="info">
+    <h2>Guides and resources</h2>
     <p>
-      We benchmarked SmarterDiff against three popular web-based diff tools using identical test
-      files ranging from 1 MB to 100 MB. All tests ran on the same residential internet connection
-      (50 Mbps) and computer (MacBook Pro, M2, 16 GB RAM).
+      If you want practical walkthroughs, use these pages:
+      <a href="/compare-word-documents.html">Compare Word documents</a>,
+      <a href="/compare-pdfs.html">Compare PDFs</a>,
+      <a href="/compare-excel-files.html">Compare Excel files</a>,
+      <a href="/private-document-comparison.html">private document comparison</a>,
+      and <a href="/contract-diff-guide.html">contract diff guide</a>.
     </p>
-    <table style="width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem;">
-      <thead>
-        <tr style="border-bottom: 2px solid #ccc; background-color: #f0f0f0;">
-          <th style="padding: 0.75rem; text-align: left;">File Size</th>
-          <th style="padding: 0.75rem; text-align: left;">SmarterDiff (Local)</th>
-          <th style="padding: 0.75rem; text-align: left;">Diffchecker (Cloud)</th>
-          <th style="padding: 0.75rem; text-align: left;">Speed Advantage</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr style="border-bottom: 1px solid #eee;">
-          <td style="padding: 0.75rem;">1 MB text file</td>
-          <td style="padding: 0.75rem;">45 ms</td>
-          <td style="padding: 0.75rem;">1,200 ms</td>
-          <td style="padding: 0.75rem; font-weight: bold; color: #2ecc71;">26× faster</td>
-        </tr>
-        <tr style="border-bottom: 1px solid #eee;">
-          <td style="padding: 0.75rem;">10 MB Excel workbook</td>
-          <td style="padding: 0.75rem;">320 ms</td>
-          <td style="padding: 0.75rem;">5,400 ms</td>
-          <td style="padding: 0.75rem; font-weight: bold; color: #2ecc71;">16× faster</td>
-        </tr>
-        <tr>
-          <td style="padding: 0.75rem;">50 MB PDF (200 pages)</td>
-          <td style="padding: 0.75rem;">1,200 ms</td>
-          <td style="padding: 0.75rem;">Timeout (&gt;30s)</td>
-          <td style="padding: 0.75rem; font-weight: bold; color: #2ecc71;">25× faster</td>
-        </tr>
-      </tbody>
-    </table>
-    <p style="font-size: 0.9rem; color: #666;">
-      <em>Benchmark results from June 2026. Cloud uploads tested on 50 Mbps residential internet.
-      SmarterDiff uses browser JavaScript with no network overhead.</em>
-    </p>
-
-    <h3>AI Image Detection Accuracy Study</h3>
     <p>
-      We tested our four-signal AI detector on 500 images: 250 AI-generated (DALL-E 3, Midjourney,
-      Stable Diffusion) and 250 camera photos from Flickr. Key finding: accuracy drops significantly
-      after re-compression (a limitation of all heuristic detectors, not just ours).
-    </p>
-    <table style="width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem;">
-      <thead>
-        <tr style="border-bottom: 2px solid #ccc; background-color: #f0f0f0;">
-          <th style="padding: 0.75rem; text-align: left;">Test Group</th>
-          <th style="padding: 0.75rem; text-align: center;">Detection Rate</th>
-          <th style="padding: 0.75rem; text-align: center;">False Positive</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr style="border-bottom: 1px solid #eee;">
-          <td style="padding: 0.75rem;">Unedited AI images</td>
-          <td style="padding: 0.75rem; text-align: center;">89%</td>
-          <td style="padding: 0.75rem; text-align: center;">7%</td>
-        </tr>
-        <tr style="border-bottom: 1px solid #eee;">
-          <td style="padding: 0.75rem;">Camera photos (no edit)</td>
-          <td style="padding: 0.75rem; text-align: center;">91%</td>
-          <td style="padding: 0.75rem; text-align: center;">6%</td>
-        </tr>
-        <tr style="border-bottom: 1px solid #eee;">
-          <td style="padding: 0.75rem;">Re-compressed (JPEG 80%)</td>
-          <td style="padding: 0.75rem; text-align: center;">72%</td>
-          <td style="padding: 0.75rem; text-align: center;">18%</td>
-        </tr>
-        <tr>
-          <td style="padding: 0.75rem;">Cropped/edited</td>
-          <td style="padding: 0.75rem; text-align: center;">68%</td>
-          <td style="padding: 0.75rem; text-align: center;">22%</td>
-        </tr>
-      </tbody>
-    </table>
-    <p style="font-size: 0.9rem; color: #666;">
-      <em>Study conducted June 2026. Compression and cropping destroy JPEG fingerprints and spectral
-      data, which are core to our detection approach.</em>
-    </p>
-
-    <h3>Why Re-Compression Breaks Detection</h3>
-    <p>
-      Our research revealed a fundamental limitation: when images are re-compressed through social
-      media platforms (Instagram, WhatsApp, Discord), the compression destroys the JPEG quantization
-      fingerprint that our detector relies on. This isn't a SmarterDiff limitation—it's a limitation
-      of all heuristic-based detectors. Neural network approaches are being explored by researchers,
-      but they trade transparency for accuracy.
+      More pages:
+      <a href="/compare-text-files.html">compare text files</a>,
+      <a href="/folder-diff-checklist.html">folder diff checklist</a>,
+      <a href="/image-diff-guide.html">image diff guide</a>,
+      <a href="/ai-image-detection-guide.html">AI image detection guide</a>,
+      and <a href="/secure-review-workflow.html">secure review workflow</a>.
     </p>
   </section>
 
@@ -832,8 +754,8 @@
   <section id="privacy" class="info">
     <h2>Why client-side?</h2>
     <p>
-      The #1 complaint we saw on Reddit about competing diff tools was: <em>"I'm not pasting our
-      contract / patient list / source code into a random website."</em> SmarterDiff fixes that by
+      A common concern with online diff tools is uploading sensitive files to unknown infrastructure.
+      SmarterDiff addresses that by
       pushing all the heavy lifting — text diff, archive parsing, pixel comparison, even AI
       detection — to your CPU. Your files literally cannot reach us because we don't have a
       backend that accepts them.
@@ -841,36 +763,28 @@
   </section>
 
   <section class="info">
-    <h2>The SmarterDiff Team</h2>
+    <h2>About this project</h2>
     <p>
-      SmarterDiff was born from frustration. Our core team — software engineers, security researchers,
-      and product designers — encountered the same problem repeatedly: colleagues, clients, and friends
-      refused to paste sensitive documents into web-based diff tools because they didn't trust servers
-      run by strangers.
+      SmarterDiff was created as a privacy-first web project for document and file comparison.
+      The goal is straightforward: make common diff workflows available in a browser while keeping
+      user files local to the device.
     </p>
 
     <h3>Why we built this</h3>
     <p>
-      We're privacy advocates and open-source enthusiasts. Every day, we see organizations forced to
-      choose between convenience and security — uploading confidential contracts to a diff tool, or
-      manually comparing documents line-by-line. That tradeoff shouldn't exist.
+      The project is built around a practical constraint: many users need quick comparisons but cannot
+      send source material to third-party servers. Browser APIs now make high-quality local processing possible.
     </p>
     <p>
-      We realized that modern browsers have all the power we need: Web Crypto APIs for hashing,
+      Modern browsers provide the core pieces needed: Web Crypto APIs for hashing,
       Canvas for image processing, File APIs for local file handling. The missing piece was a tool
       that leveraged these capabilities. So we built SmarterDiff.
     </p>
 
-    <h3>Our background</h3>
+    <h3>Current scope</h3>
     <p>
-      Our team includes former employees of Stripe, Google, and security-focused startups. We've shipped
-      infrastructure that processes billions of transactions, built distributed systems that handle millions
-      of concurrent requests, and debugged security vulnerabilities in systems that protect sensitive data.
-    </p>
-    <p>
-      We understand what it means to earn trust. That's why every decision in SmarterDiff — from the
-      choice of open-source libraries to the decision to have zero backend — is motivated by making it
-      impossible for your data to leak.
+      SmarterDiff currently focuses on browser-based comparison for text, office documents, PDFs,
+      spreadsheets, folders, and images, with clear privacy expectations and no account requirement.
     </p>
 
     <h3>Our principles</h3>
@@ -902,9 +816,8 @@
       more accurate without building a proprietary model.
     </p>
     <p>
-      Most importantly, we're committed to keeping SmarterDiff free and privacy-first forever. No
-      venture capital backing, no exit strategy, no sudden pivots to a paid model. We're funded by ads,
-      and we're transparent about that.
+      The project is currently ad-supported and focused on keeping the core comparison workflow
+      available without requiring sign-up.
     </p>
 
     <h3>Questions or feedback?</h3>
